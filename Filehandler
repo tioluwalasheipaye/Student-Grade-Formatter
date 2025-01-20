@@ -1,1 +1,110 @@
-
+package com.studentgrades;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Arrays;
+/**
+* Handles file input and output for the student grade formatter.
+* Includes methods to read from input files and write to an output file,
+* logging any skipped lines due to errors.
+*/
+public class FileHandler {
+   /**
+    * Reads the NameFile and initializes student records with IDs and names.
+    * Logs any skipped lines.
+    * @param fileName The path to the NameFile.txt.
+    * @param skippedLines A list to log skipped lines.
+    * @return A list of Student objects with ID and name populated.
+    * @throws IOException If the file cannot be accessed.
+    */
+   public List<Student> readNameFile(String fileName, List<String> skippedLines) throws IOException {
+       List<Student> students = new ArrayList<>();
+       File file = new File(fileName);
+       if (!file.exists() || file.isDirectory()) {
+           throw new FileNotFoundException("Error: NameFile.txt not found at " + fileName);
+       }
+       try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+           String line;
+           while ((line = reader.readLine()) != null) {
+               String[] parts = line.split(",");
+               if (parts.length != 2) {
+                   // Log malformed line
+                   skippedLines.add("Malformed line in NameFile: " + line);
+                   continue;
+               }
+               students.add(new Student(parts[0].trim(), parts[1].trim()));
+           }
+       }
+       return students;
+   }
+   /**
+    * Reads the CourseFile and updates the course and grades for each student.
+    * Logs any skipped lines.
+    * @param fileName The path to the CourseFile.txt.
+    * @param students The list of Student objects to update.
+    * @param skippedLines A list to log skipped lines.
+    * @throws IOException If the file cannot be accessed.
+    */
+   public void readCourseFile(String fileName, List<Student> students, List<String> skippedLines) throws IOException {
+       File file = new File(fileName);
+       if (!file.exists() || file.isDirectory()) {
+           throw new FileNotFoundException("Error: CourseFile.txt not found at " + fileName);
+       }
+       try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+           String line;
+           while ((line = reader.readLine()) != null) {
+               String[] parts = line.split(",");
+               if (parts.length != 6) {
+                   // Log malformed line
+                   skippedLines.add("Malformed line in CourseFile: " + line);
+                   continue;
+               }
+               try {
+                   String studentID = parts[0].trim();
+                   String courseCode = parts[1].trim();
+                   double[] courseGrades = Arrays.stream(parts, 2, 6).mapToDouble(Double::parseDouble).toArray();
+                   boolean studentFound = false;
+                   for (Student student : students) {
+                       if (student.getStudentID().equals(studentID)) {
+                           student.addCourse(courseCode, courseGrades);
+                           studentFound = true;
+                           break;
+                       }
+                   }
+                   if (!studentFound) {
+                       // Log unmatched student
+                       skippedLines.add("No matching student for ID in CourseFile: " + line);
+                   }
+               } catch (NumberFormatException e) {
+                   // Log invalid grade data
+                   skippedLines.add("Invalid grade data in CourseFile: " + line);
+               }
+           }
+       }
+   }
+   /**
+    * Writes the formatted student data and skipped lines to the output file.
+    * @param fileName The path to the output file.
+    * @param students The list of Student objects to write.
+    * @param skippedLines The list of skipped lines to log.
+    * @throws IOException If the file cannot be written.
+    */
+   public void writeOutputFile(String fileName, List<Student> students, List<String> skippedLines) throws IOException {
+       try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+           if (students.isEmpty()) {
+               writer.println("No valid student data available.");
+           }
+           // Write valid student data
+           for (Student student : students) {
+               writer.print(student.toString() + "\n");
+           }
+           // Write skipped lines
+           if (!skippedLines.isEmpty()) {
+               writer.println("\n--- Skipped Lines ---");
+               for (String skipped : skippedLines) {
+                   writer.println(skipped);
+               }
+           }
+       }
+   }
+}
