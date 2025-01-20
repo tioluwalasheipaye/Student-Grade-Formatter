@@ -1,0 +1,26 @@
+package com.studentgrades;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+/**
+* Entry point for the Student Grade Formatter application.
+*/
+public class Main {
+   public static void main(String[] args) {
+       FileHandler fileHandler = new FileHandler();
+       GradeProcessor gradeProcessor = new GradeProcessor();
+       try {
+           List<String> skippedLines = new ArrayList<>(); // List to log skipped lines
+           // Read input files
+           List<Student> students = fileHandler.readNameFile("input/NameFile.txt", skippedLines);
+           fileHandler.readCourseFile("input/CourseFile.txt", students, skippedLines);
+           // Sort students by their ID
+           gradeProcessor.sortStudentsByID(students);
+           // Write the sorted and formatted data to the output file
+           fileHandler.writeOutputFile("C:/Users/Lanni/OutputFile.txt", students, skippedLines);
+           System.out.println("Processing completed. Check OutputFile.txt for details.");
+       } catch (IOException e) {
+           System.err.println("Error: " + e.getMessage());
+       }
+   }
+}
