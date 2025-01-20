@@ -1,0 +1,75 @@
+package com.studentgrades;
+import java.util.ArrayList;
+import java.util.List;
+/**
+* Represents a student with their personal information and multiple courses.
+* This class handles encapsulation of student data and provides methods to manage
+* courses and grades.
+*/
+public class Student {
+   private String studentID;         // Unique identifier for the student
+   private String name;              // Name of the student
+   private List<String> courseCodes; // List of all courses taken by the student
+   private List<double[]> grades;    // List of grades (Test1, Test2, Test3, FinalExam) for each course
+   /**
+    * Constructor to initialize a student object with ID and name.
+    * @param studentID The unique student ID.
+    * @param name The student's full name.
+    */
+   public Student(String studentID, String name) {
+       this.studentID = studentID;
+       this.name = name;
+       this.courseCodes = new ArrayList<>(); // Initialize list to store courses
+       this.grades = new ArrayList<>();     // Initialize list to store grades
+   }
+   // Public getter for the student's ID
+   public String getStudentID() {
+       return studentID;
+   }
+   // Public getter for the student's name
+   public String getName() {
+       return name;
+   }
+   // Public getter for the list of course codes
+   public List<String> getCourseCodes() {
+       return courseCodes;
+   }
+   // Public getter for the list of grades
+   public List<double[]> getGrades() {
+       return grades;
+   }
+   /**
+    * Adds a new course and its grades to the student's record.
+    * @param courseCode The course code.
+    * @param courseGrades Array of grades (Test1, Test2, Test3, FinalExam).
+    */
+   public void addCourse(String courseCode, double[] courseGrades) {
+       courseCodes.add(courseCode);  // Add the course code to the list
+       grades.add(courseGrades);    // Add the corresponding grades to the list
+   }
+   /**
+    * Calculates the final grade for a specific course based on its index.
+    * Formula: Final Grade = 20% of (Test Average) + 40% of Final Exam.
+    * @param courseIndex The index of the course in the list.
+    * @return The calculated final grade rounded to one decimal place.
+    */
+   public double calculateFinalGrade(int courseIndex) {
+       double[] courseGrades = grades.get(courseIndex); // Retrieve grades for the course
+       double testsAverage = (courseGrades[0] + courseGrades[1] + courseGrades[2]) / 3; // Test average
+       return Math.round((testsAverage * 0.6 + courseGrades[3] * 0.4) * 10) / 10.0; // Weighted final grade
+   }
+   /**
+    * Provides a string representation of all courses and their final grades for the student.
+    * @return A formatted string containing student details for all courses.
+    */
+   @Override
+   public String toString() {
+       StringBuilder sb = new StringBuilder();
+       // Loop through each course and append its details
+       for (int i = 0; i < courseCodes.size(); i++) {
+           sb.append(String.format("%s, %s, %s, %.1f%n",
+                   studentID, name, courseCodes.get(i), calculateFinalGrade(i)));
+       }
+       return sb.toString().trim(); // Remove trailing newline
+   }
+}
