@@ -1,0 +1,17 @@
+package com.studentgrades;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+/**
+* Processes and sorts student data based on specific criteria.
+* Implements abstraction to handle sorting without exposing logic to other classes.
+*/
+public class GradeProcessor {
+	/**
+    * Sorts a list of Student objects by their Student ID in ascending order.
+    * @param students List of Student objects to sort
+    */
+   public void sortStudentsByID(List<Student> students) {
+       Collections.sort(students, Comparator.comparing(Student::getStudentID));
+   }
+}
